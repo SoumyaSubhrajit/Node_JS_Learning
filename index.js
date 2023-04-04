@@ -1,5 +1,7 @@
 const fs = require('fs');
 const http = require('http');
+const { parse } = require('path');
+const { json } = require('stream/consumers');
 // const path = require('path');
 const url = require('url');
 
@@ -9,12 +11,26 @@ const url = require('url');
 //////////////////////////////////////////////////////////
 /////////  MAKING SERVER ///////////
 
+const data = fs.readFileSync(`${__dirname}/dev-data/data.json`, 'utf-8');
+const dataObj = JSON.parse(data);
+
+
 // Here I create a Server...
 const server = http.createServer((req, res) => {
   const pathReq = req.url;
   if (pathReq === '/' || pathReq === '/overview') {
     res.end('Welcome to the OVERVIEW page')
-  } else {
+  }
+  else if (pathReq === '/product') {
+    res.end('Welcom to the PRODUCT page!')
+  }
+  else if (pathReq === '/api') {
+    res.writeHead(200, {
+      'content-type': 'application/json'
+    })
+    res.end(data);
+  }
+  else {
     res.writeHead(404);
     res.end("<h1>Page Not Found!!</h1>");
   }
