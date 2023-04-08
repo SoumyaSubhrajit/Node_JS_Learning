@@ -59,8 +59,12 @@ const server = http.createServer((req, res) => {
     res.end(data);
   }
   else {
-    res.writeHead(404)
+    res.writeHead(404, {
+      'Conent-type': 'type/html',
+      'message': 'Try again after some time'
+    })
     res.end('<h1>Page Not Found!!</h1>')
+
   }
 })
 
