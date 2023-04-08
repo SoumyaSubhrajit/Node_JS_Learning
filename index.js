@@ -45,8 +45,16 @@ const url = require('url');
 
 
 const server = http.createServer((req, res) => {
-
-  res.end('<h1>This the main page</h1>')
+  const reqPath = req.url;
+  if (reqPath === '/' || reqPath === '/overview') {
+    res.end('<h1>This the main page</h1>')
+  } else if (reqPath === '/product') {
+    res.end('<h1>Welcome to the product page!</h1>')
+  }
+  else {
+    res.writeHead(404)
+    res.end('<h1>Page Not Found!!</h1>')
+  }
 })
 
 server.listen(8080, '127.0.0.1', () => {
