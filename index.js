@@ -43,6 +43,8 @@ const url = require('url');
 // })
 
 
+const data = fs.readFileSync(`${__dirname}/dev-data/data.json`, 'utf-8');
+const dataObj = JSON.parse(data);
 
 const server = http.createServer((req, res) => {
   const reqPath = req.url;
@@ -50,6 +52,11 @@ const server = http.createServer((req, res) => {
     res.end('<h1>This the main page</h1>')
   } else if (reqPath === '/product') {
     res.end('<h1>Welcome to the product page!</h1>')
+  } else if (reqPath === '/api') {
+    res.writeHead(200, {
+      'Content-type': 'application/json'
+    })
+    res.end(data);
   }
   else {
     res.writeHead(404)
