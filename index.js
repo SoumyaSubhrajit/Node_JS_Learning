@@ -42,17 +42,68 @@ const url = require('url');
 //   console.log("Server is listing!");
 // })
 
+const replaceTemplate = function (temp, product) {
+  // I changed here dynamiclly..
+  let output = temp.replace(/{%PRODUCTNAME%}/g, product.productName);
+  output = output.replace(/{%IMAGE%}/g, product.image);
+  output = output.replace(/{%PRICE%}/g, product.price);
+  output = output.replace(/{%FROM%}/g, product.from);
+  output = output.replace(/{%NUTRIENTS%}/g, product.nutrients);
+  output = output.replace(/{%QUANTITY%}/g, product.quantity);
+  output = output.replace(/{%DESCRIPTION%}/g, product.description);
+  output = output.replace(/{%ID%}/g, product.id);
+
+  // this is the exception case if the check if it is organic or not.
+  if (!product.organic) output = output.replace(/{%NOT_ORGANIC%}/g, 'not-organic ');
+
+  return output;
+
+}
+
+
+// Passing the page into the Js file format so that I can Ireate through this variable and chage the elements....
+const tempOverview = fs.readFileSync(`${__dirname}/templates/template-overview.html`, 'utf-8');
+const tempCard = fs.readFileSync(`${__dirname}/templates/template-card.html`, 'utf-8');
+const tempProduct = fs.readFileSync(`${__dirname}/templates/template-product.html`, 'utf-8');
+
 
 const data = fs.readFileSync(`${__dirname}/dev-data/data.json`, 'utf-8');
+// This is my json file.
 const dataObj = JSON.parse(data);
+// console.log(dataObj);
 
 const server = http.createServer((req, res) => {
-  const reqPath = req.url;
-  if (reqPath === '/' || reqPath === '/overview') {
-    res.end('<h1>This the main page</h1>')
-  } else if (reqPath === '/product') {
-    res.end('<h1>Welcome to the product page!</h1>')
-  } else if (reqPath === '/api') {
+
+  const { query, pathname } = url.parse(req.url, true);
+  // query is the {id: 0} , pathname = /product..
+
+
+  //Overview
+  if (pathname === '/' || pathname === '/overview') {
+    res.writeHead(200, {
+      'Conent-type': 'type/html',
+    })
+
+    // Itrating inside the json data to get the data.
+    const cardHtml = dataObj.map(el => replaceTemplate(tempCard, el)).join(' ');
+
+    const output = tempOverview.replace('{%PRODUCT_CARD%}', cardHtml)
+
+
+    res.end(output)
+  }
+
+  // Product
+  else if (pathname === '/product') {
+    res.writeHead(200, {
+      'Conent-type': 'type/html',
+    })
+
+    const product = dataObj[query.id];
+    const ouput = replaceTemplate(tempProduct, product);
+    res.end(ouput);
+
+  } else if (pathname === '/api') {
     res.writeHead(200, {
       'Content-type': 'application/json'
     })
@@ -64,7 +115,6 @@ const server = http.createServer((req, res) => {
       'message': 'Try again after some time'
     })
     res.end('<h1>Page Not Found!!</h1>')
-
   }
 })
 
